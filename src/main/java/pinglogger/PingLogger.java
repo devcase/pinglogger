@@ -12,6 +12,7 @@ public class PingLogger {
 			System.out.println("Modo de execução: java -jar pinglogger.jar 192.168.1.104 c:\\\\cmd\\\\logger.exe 192.168.1.104");
 			System.exit(0);
 		}
+		DateFormat df = new SimpleDateFormat("dd/MM/yyyy - HH:mm");
 		try {
 			char dirSeparator = args[1].contains("\\") ? '\\' : '/';
 			
@@ -20,6 +21,7 @@ public class PingLogger {
 			String loggerDir = args[1].substring(0, args[1].lastIndexOf(dirSeparator));
 			
 			
+			System.out.print(df.format(new Date()) + " : ");
 			System.out.println("Executável logger: " + loggerCmd);
 			System.out.println("Diretório logger: " + loggerDir);
 			System.out.println("Endereço IP: " + ipAddress);
@@ -34,30 +36,37 @@ public class PingLogger {
 			}
 
 			
-			ProcessBuilder pingProcessBuilder = new ProcessBuilder("ping", "-n", "2", ipAddress);
+			ProcessBuilder pingProcessBuilder = new ProcessBuilder("ping", "-n", "2", ipAddress); //executa 2 pings
 			ProcessBuilder loggerProcessBuilder = new ProcessBuilder(loggerCmd);
 			loggerProcessBuilder.directory(fileLoggerDir);
-			DateFormat df = new SimpleDateFormat("dd/MM/yyyy - HH:mm"); 
+			
+			
 			
 			while(true) {
 				Process loggerProc = null;
 				Process pingProc = null;
 				try {
+					//calculando tempo para iniciar exatamente às XX:00, XX:15, XX:30 ou XX:45
+					long millisParaIniciar = (15 * 60 * 1000)- System.currentTimeMillis() % (15 * 60 * 1000);
+					
+					System.out.print(df.format(new Date()) + " : ");
+					System.out.println("Aguardando " + ((double) millisParaIniciar / (60 * 1000)) + " minutos");
+					//aguarda 15 minutos
+					Thread.sleep(millisParaIniciar);
+					
 					//Executa ping
-					System.out.print(df.format(new Date()));
-					System.out.println(" - Executando ping no IP " + ipAddress);
+					System.out.print(df.format(new Date()) + " : ");
+					System.out.println("Executando ping no IP " + ipAddress);
 				    pingProc = pingProcessBuilder.start();
 				    
 					//aguarda 10 segundos 
 					Thread.sleep(10 * 1000);
 					
 					//Executa logger
-					System.out.print(df.format(new Date()));
-					System.out.println(" - Executando logger");
+					System.out.print(df.format(new Date()) + " : ");
+					System.out.println("Executando logger");
 					loggerProc = loggerProcessBuilder.start();
 					
-					//aguarda 15 minutos
-					Thread.sleep(15 * 60 * 1000 - 10 * 1000);
 				} finally {
 					if(pingProc != null) {
 						try { pingProc.destroy(); } catch (Exception ex) { ex.printStackTrace(); }
