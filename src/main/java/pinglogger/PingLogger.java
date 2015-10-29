@@ -41,18 +41,18 @@ public class PingLogger {
 			loggerProcessBuilder.directory(fileLoggerDir);
 			
 			
+			//calculando tempo para iniciar exatamente às XX:00, XX:15, XX:30 ou XX:45
+			long millisParaIniciar = (15 * 60 * 1000)- System.currentTimeMillis() % (15 * 60 * 1000);
+			
+			System.out.print(df.format(new Date()) + " : ");
+			System.out.println("Aguardando " + ((double) millisParaIniciar / (60 * 1000)) + " minutos");
+			//aguarda 15 minutos
+			Thread.sleep(millisParaIniciar);
 			
 			while(true) {
 				Process loggerProc = null;
 				Process pingProc = null;
 				try {
-					//calculando tempo para iniciar exatamente às XX:00, XX:15, XX:30 ou XX:45
-					long millisParaIniciar = (15 * 60 * 1000)- System.currentTimeMillis() % (15 * 60 * 1000);
-					
-					System.out.print(df.format(new Date()) + " : ");
-					System.out.println("Aguardando " + ((double) millisParaIniciar / (60 * 1000)) + " minutos");
-					//aguarda 15 minutos
-					Thread.sleep(millisParaIniciar);
 					
 					//Executa ping
 					System.out.print(df.format(new Date()) + " : ");
@@ -66,6 +66,14 @@ public class PingLogger {
 					System.out.print(df.format(new Date()) + " : ");
 					System.out.println("Executando logger");
 					loggerProc = loggerProcessBuilder.start();
+					
+					//calculando tempo para iniciar exatamente às XX:00, XX:15, XX:30 ou XX:45
+					long millisParaRepetir = (15 * 60 * 1000)- System.currentTimeMillis() % (15 * 60 * 1000);
+					
+					System.out.print(df.format(new Date()) + " : ");
+					System.out.println("Aguardando " + ((double) millisParaRepetir / (60 * 1000)) + " minutos");
+					//aguarda 15 minutos
+					Thread.sleep(millisParaRepetir);
 					
 				} finally {
 					if(pingProc != null) {
