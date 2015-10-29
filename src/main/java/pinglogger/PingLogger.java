@@ -6,7 +6,10 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class PingLogger {
-
+	//calculando tempo para executar a cada minuto cheio
+	private static final int PERIODO = 60 * 1000;
+	private static final long TEMPO_PRE_PING = 5 * 1000;
+	
 	public static void main(String[] args) {
 		if(args == null || args.length < 2){
 			System.out.println("Modo de execução: java -jar pinglogger.jar 192.168.1.104 c:\\\\cmd\\\\logger.exe 192.168.1.104");
@@ -41,13 +44,16 @@ public class PingLogger {
 			loggerProcessBuilder.directory(fileLoggerDir);
 			
 			
-			//calculando tempo para iniciar exatamente às XX:00, XX:15, XX:30 ou XX:45
-			long millisParaIniciar = (15 * 60 * 1000)- System.currentTimeMillis() % (15 * 60 * 1000);
 			
-			System.out.print(df.format(new Date()) + " : ");
-			System.out.println("Aguardando " + ((double) millisParaIniciar / (60 * 1000)) + " minutos");
-			//aguarda 15 minutos
-			Thread.sleep(millisParaIniciar);
+			long millisParaIniciar = (PERIODO)- System.currentTimeMillis() % (PERIODO) - TEMPO_PRE_PING;
+			
+			
+			if(millisParaIniciar > 0) {
+				System.out.print(df.format(new Date()) + " : ");
+				System.out.println("Aguardando " + ((double) millisParaIniciar / (60 * 1000)) + " minutos");
+				//aguarda 15 minutos
+				Thread.sleep(millisParaIniciar);
+			}
 			
 			while(true) {
 				Process loggerProc = null;
@@ -59,8 +65,10 @@ public class PingLogger {
 					System.out.println("Executando ping no IP " + ipAddress);
 				    pingProc = pingProcessBuilder.start();
 				    
-					//aguarda 10 segundos 
-					Thread.sleep(10 * 1000);
+				
+					long millisParaEsperar = (PERIODO)- System.currentTimeMillis() % (PERIODO);
+					//aguarda TEMPO_PRE_PING segundos 
+					Thread.sleep(millisParaEsperar);
 					
 					//Executa logger
 					System.out.print(df.format(new Date()) + " : ");
@@ -68,7 +76,7 @@ public class PingLogger {
 					loggerProc = loggerProcessBuilder.start();
 					
 					//calculando tempo para iniciar exatamente às XX:00, XX:15, XX:30 ou XX:45
-					long millisParaRepetir = (15 * 60 * 1000)- System.currentTimeMillis() % (15 * 60 * 1000);
+					long millisParaRepetir = (PERIODO)- System.currentTimeMillis() % (PERIODO) - TEMPO_PRE_PING;
 					
 					System.out.print(df.format(new Date()) + " : ");
 					System.out.println("Aguardando " + ((double) millisParaRepetir / (60 * 1000)) + " minutos");
